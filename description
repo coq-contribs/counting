@@ -1,0 +1,7 @@
+Name: Counting
+Title: Counting: a Coq plugin for measuring definitions/proofs
+Author: Stéphane Lescuyer
+Institution: INRIA Saclay - Île-de-France, ProVal project
+Description: This plugin keeps the count of the size of definitions and proofs in the current Coq session.
+Keywords: statistics
+Category: Miscellaneous/Coq Extensions
