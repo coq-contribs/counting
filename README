@@ -1,0 +1,59 @@
+Counting: a Coq plugin for measuring definitions/proofs.
+========================================================
+2010 - Stéphane Lescuyer <stephane.lescuyer@inria.fr>
+
+Features
+========
+
+This plugin keeps the count of the size of definitions and proofs
+in the current Coq session. The available commands are:
+
+Start Counting.
+  starts counting the size of definitions and proofs
+
+Stop Counting.
+  stops counting the size of definitions and proofs
+
+Print Count.
+  displays the current count for definitions and proofs,
+  and whether counting is on or off
+
+Reset Count.
+  resets the count for definitions and proofs to 0
+
+Size <id>.
+  Displays the size of the object identified by <id>
+
+Files
+=====
+
+The archive has 3 subdirectories:
+src/ contains the code of the plugin in counting.ml and
+  a support file for building the plugin.
+
+theories/ contains Counting.v used to load the plugin on
+  the Coq side.
+
+tests/ just demonstrates a use of the plugin
+
+Installation
+============
+
+First, you should have coqc, ocamlc and make in your path.
+Then simply do:
+
+# coq_makefile -f make > Makefile
+
+To generate a makefile from the description in Make, then [make].
+This will consecutively build the plugin, the supporting
+theories and the test file.
+
+You can then either install the plugin with
+
+# sudo ./install.sh
+
+or leave it in its current directory and to be able to import it
+from anywhere in Coq, simply add the following to ~/.coqrc:
+
+Add Rec LoadPath "path_to_counting/theories" as Counting.
+Add ML Path "path_to_counting/src".
