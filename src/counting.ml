@@ -50,7 +50,8 @@ let extract_size pft =
   if !count then
     try
       total_proofs_size := !total_proofs_size +
-	constr_size (Refiner.extract_pftreestate pft)
+	List.fold_left (fun acc t -> acc + constr_size t)
+	  0 (Proof.partial_proof pft)
     with _ -> ()
 
 let entry_size {Entries.const_entry_body = c} =
@@ -81,7 +82,7 @@ let size_of cref =
     | Libnames.ConstRef sp ->
 	begin
 	  let cb = Global.lookup_constant sp in
-	  match cb.Declarations.const_body with
+	  match Declarations.body_of_constant cb with
 	    | None -> if_verbose msgnl (str "No body : cannot count.")
 	    | Some lc ->
 		let n = constr_size (Declarations.force lc) in
