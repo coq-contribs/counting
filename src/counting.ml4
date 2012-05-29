@@ -79,7 +79,7 @@ let _ =
 (* Size of a particular object *)
 let size_of cref =
   match Nametab.global cref with
-    | Libnames.ConstRef sp ->
+    | Globnames.ConstRef sp ->
 	begin
 	  let cb = Global.lookup_constant sp in
 	  match Declarations.body_of_constant cb with
