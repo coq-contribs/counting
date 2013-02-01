@@ -7,7 +7,7 @@ COUNTING_PLUGIN = "src/counting_plugin.cma"
 COUNTING_PLUGINOPT = "src/counting_plugin.cmxs"
 COQDOC = "$(COQBIN)coqdoc -interpolate -utf8"
 CAMLP4OPTIONS = "-loc loc"
-src/counting.ml
+src/counting.ml4
 src/counting_plugin_mod.ml
 theories/Counting.v
 tests/TestCounting.v
