@@ -82,10 +82,10 @@ let size_of cref =
     | Globnames.ConstRef sp ->
 	begin
 	  let cb = Global.lookup_constant sp in
-	  match Declarations.body_of_constant cb with
+	  match Declareops.body_of_constant cb with
 	    | None -> if_verbose msgnl (str "No body : cannot count.")
 	    | Some lc ->
-		let n = constr_size (Declarations.force lc) in
+		let n = constr_size (Lazyconstr.force lc) in
 		if_verbose msgnl (str "Size of " ++
 			 Libnames.pr_reference cref ++ str " : " ++ int n)
 	end
