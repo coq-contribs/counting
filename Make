@@ -1,13 +1,7 @@
 -I src
 -R theories Counting
--custom "$(CAMLOPTLINK) $(ZDEBUG) $(ZFLAGS) -shared -o src/counting_plugin.cmxs src/counting.cmx src/counting_plugin_mod.cmx" "src/counting.cmx src/counting_plugin_mod.cmx" src/counting_plugin.cmxs
--custom "$(CAMLLINK) -g -a -o src/counting_plugin.cma src/counting.cmo src/counting_plugin_mod.cmo" "src/counting.cmo src/counting_plugin_mod.cmo" src/counting_plugin.cma
--custom "$(COQBIN)coqc $(COQDEBUG) $(COQFLAGS) $*" "%.v $(COUNTING_PLUGINOPT) $(COUNTING_PLUGIN)" "%.vo %.glob"
-COUNTING_PLUGIN = "src/counting_plugin.cma"
-COUNTING_PLUGINOPT = "src/counting_plugin.cmxs"
-COQDOC = "$(COQBIN)coqdoc -interpolate -utf8"
-CAMLP4OPTIONS = "-loc loc"
 src/counting.ml4
 src/counting_plugin_mod.ml
+src/counting_plugin.mllib
 theories/Counting.v
 tests/TestCounting.v

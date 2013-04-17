@@ -56,10 +56,6 @@ COQDOCLIBS?=-R theories Counting
 #                        #
 ##########################
 
-CAMLP4OPTIONS=-loc loc
-COQDOC=$(COQBIN)coqdoc -interpolate -utf8
-COUNTING_PLUGINOPT=src/counting_plugin.cmxs
-COUNTING_PLUGIN=src/counting_plugin.cma
 
 OPT?=
 COQDEP?="$(COQBIN)coqdep" -c
@@ -81,7 +77,6 @@ COQSRCLIBS?=-I "$(COQLIB)kernel" -I "$(COQLIB)lib" \
   -I $(COQLIB)/plugins/cc \
   -I $(COQLIB)/plugins/decl_mode \
   -I $(COQLIB)/plugins/extraction \
-  -I $(COQLIB)/plugins/field \
   -I $(COQLIB)/plugins/firstorder \
   -I $(COQLIB)/plugins/fourier \
   -I $(COQLIB)/plugins/funind \
@@ -89,7 +84,6 @@ COQSRCLIBS?=-I "$(COQLIB)kernel" -I "$(COQLIB)lib" \
   -I $(COQLIB)/plugins/nsatz \
   -I $(COQLIB)/plugins/omega \
   -I $(COQLIB)/plugins/quote \
-  -I $(COQLIB)/plugins/ring \
   -I $(COQLIB)/plugins/romega \
   -I $(COQLIB)/plugins/rtauto \
   -I $(COQLIB)/plugins/setoid_ring \
@@ -154,14 +148,22 @@ MLFILES:=src/counting_plugin_mod.ml
 -include $(addsuffix .d,$(MLFILES))
 .SECONDARY: $(addsuffix .d,$(MLFILES))
 
+MLLIBFILES:=src/counting_plugin.mllib
+
+-include $(addsuffix .d,$(MLLIBFILES))
+.SECONDARY: $(addsuffix .d,$(MLLIBFILES))
+
 ALLCMOFILES:=$(ML4FILES:.ml4=.cmo) $(MLFILES:.ml=.cmo)
 CMOFILES=$(filter-out $(addsuffix .cmo,$(foreach lib,$(MLLIBFILES:.mllib=_MLLIB_DEPENDENCIES) $(MLPACKFILES:.mlpack=_MLPACK_DEPENDENCIES),$($(lib)))),$(ALLCMOFILES))
 CMOFILESINC=$(filter $(wildcard src/*),$(CMOFILES)) 
 CMXFILES=$(CMOFILES:.cmo=.cmx)
 OFILES=$(CMXFILES:.cmx=.o)
+CMAFILES:=$(MLLIBFILES:.mllib=.cma)
+CMAFILESINC=$(filter $(wildcard src/*),$(CMAFILES)) 
+CMXAFILES:=$(CMAFILES:.cma=.cmxa)
 CMIFILES=$(ALLCMOFILES:.cmo=.cmi)
 CMIFILESINC=$(filter $(wildcard src/*),$(CMIFILES)) 
-CMXSFILES=$(CMXFILES:.cmx=.cmxs)
+CMXSFILES=$(CMXFILES:.cmx=.cmxs) $(CMXAFILES:.cmxa=.cmxs)
 CMXSFILESINC=$(filter $(wildcard src/*),$(CMXSFILES)) 
 ifeq '$(HASNATDYNLINK)' 'true'
 HASNATDYNLINK_OR_EMPTY := yes
@@ -175,8 +177,7 @@ endif
 #                                     #
 #######################################
 
-all: $(VOFILES) $(CMOFILES) $(if $(HASNATDYNLINK_OR_EMPTY),$(CMXSFILES)) src/counting_plugin.cma\
-  src/counting_plugin.cmxs
+all: $(VOFILES) $(CMOFILES) $(CMAFILES) $(if $(HASNATDYNLINK_OR_EMPTY),$(CMXSFILES)) 
 
 spec: $(VIFILES)
 
@@ -212,21 +213,6 @@ beautify: $(VFILES:=.beautified)
 
 .PHONY: all opt byte archclean clean install uninstall_me.sh uninstall userinstall depend html validate
 
-###################
-#                 #
-# Custom targets. #
-#                 #
-###################
-
-%.vo %.glob: %.v $(COUNTING_PLUGINOPT) $(COUNTING_PLUGIN)
-	$(COQBIN)coqc $(COQDEBUG) $(COQFLAGS) $*
-
-src/counting_plugin.cma: src/counting.cmo src/counting_plugin_mod.cmo
-	$(CAMLLINK) -g -a -o src/counting_plugin.cma src/counting.cmo src/counting_plugin_mod.cmo
-
-src/counting_plugin.cmxs: src/counting.cmx src/counting_plugin_mod.cmx
-	$(CAMLOPTLINK) $(ZDEBUG) $(ZFLAGS) -shared -o src/counting_plugin.cmxs src/counting.cmx src/counting_plugin_mod.cmx
-
 ####################
 #                  #
 # Special targets. #
@@ -253,7 +239,7 @@ install:$(if $(HASNATDYNLINK_OR_EMPTY),install-natdynlink)
 	 install -d "`dirname "$(DSTROOT)"$(COQLIBINSTALL)/Counting/$$i`"; \
 	 install -m 0644 $$i "$(DSTROOT)"$(COQLIBINSTALL)/Counting/$$i; \
 	done
-	for i in $(CMIFILESINC) $(CMOFILESINC); do \
+	for i in $(CMAFILESINC) $(CMIFILESINC) $(CMOFILESINC); do \
 	 install -m 0644 $$i "$(DSTROOT)"$(COQLIBINSTALL)/Counting/`basename $$i`; \
 	done
 
@@ -266,7 +252,7 @@ install-doc:
 uninstall_me.sh:
 	echo '#!/bin/sh' > $@ 
 	printf 'cd "$${DSTROOT}"$(COQLIBINSTALL)/Counting && \\\nfor i in $(CMXSFILESINC); do rm -f "`basename "$$i"`"; done && find . -type d -and -empty -delete\ncd "$${DSTROOT}"$(COQLIBINSTALL) && find "Counting" -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
-	printf 'cd "$${DSTROOT}"$(COQLIBINSTALL)/Counting && rm -f $(VOFILES1) && \\\nfor i in $(CMIFILESINC) $(CMOFILESINC); do rm -f "`basename "$$i"`"; done && find . -type d -and -empty -delete\ncd "$${DSTROOT}"$(COQLIBINSTALL) && find "Counting" -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
+	printf 'cd "$${DSTROOT}"$(COQLIBINSTALL)/Counting && rm -f $(VOFILES1) && \\\nfor i in $(CMAFILESINC) $(CMIFILESINC) $(CMOFILESINC); do rm -f "`basename "$$i"`"; done && find . -type d -and -empty -delete\ncd "$${DSTROOT}"$(COQLIBINSTALL) && find "Counting" -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
 	printf 'cd "$${DSTROOT}"$(COQDOCINSTALL)/Counting \\\n' >> "$@"
 	printf '&& rm -f $(shell find "html" -maxdepth 1 -and -type f -print)\n' >> "$@"
 	printf 'cd "$${DSTROOT}"$(COQDOCINSTALL) && find Counting/html -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
@@ -282,8 +268,6 @@ clean:
 	rm -f $(VOFILES) $(VIFILES) $(GFILES) $(VFILES:.v=.v.d) $(VFILES:=.beautified) $(VFILES:=.old)
 	rm -f all.ps all-gal.ps all.pdf all-gal.pdf all.glob $(VFILES:.v=.glob) $(VFILES:.v=.tex) $(VFILES:.v=.g.tex) all-mli.tex
 	- rm -rf html mlihtml uninstall_me.sh
-	- rm -rf src/counting_plugin.cma
-	- rm -rf src/counting_plugin.cmxs
 
 archclean:
 	rm -f *.cmx *.o
@@ -331,6 +315,15 @@ Makefile: Make
 
 %.cmxs: %.cmx
 	$(CAMLOPTLINK) $(ZDEBUG) $(ZFLAGS) -shared -o $@ $<
+
+%.cma: | %.mllib
+	$(CAMLLINK) $(ZDEBUG) $(ZFLAGS) -a -o $@ $^
+
+%.cmxa: | %.mllib
+	$(CAMLOPTLINK) $(ZDEBUG) $(ZFLAGS) -a -o $@ $^
+
+%.mllib.d: %.mllib
+	$(COQDEP) -slash $(COQLIBS) -c "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
 
 %.vo %.glob: %.v
 	$(COQC) $(COQDEBUG) $(COQFLAGS) $*
