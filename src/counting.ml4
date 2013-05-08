@@ -68,7 +68,7 @@ let _ =
   Summary.declare_summary "definition and proof count"
     {
       Summary.freeze_function =
-	(fun () -> (!total_defs_size, !total_proofs_size, !count));
+	(fun _ -> (!total_defs_size, !total_proofs_size, !count));
       Summary.unfreeze_function =
 	(fun (d, p, c) ->
 	   total_defs_size := d; total_proofs_size := p; count := c);
