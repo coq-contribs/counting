@@ -54,8 +54,9 @@ let extract_size pft =
 	  0 (Proof.partial_proof pft)
     with _ -> ()
 
-let entry_size {Entries.const_entry_body = c} =
+let entry_size {Entries.const_entry_body = body} =
   if !count then
+    let (c, _) = Future.force body in
     total_defs_size := !total_defs_size + constr_size c
 
 (* Initialization : setting hooks up and registering the state
@@ -92,27 +93,27 @@ let size_of cref =
     |  _ -> if_verbose msgnl (str "Only works for constants.")
 
 (* Syntax extensions *)
-VERNAC COMMAND EXTEND StartCounting
+VERNAC COMMAND EXTEND StartCounting CLASSIFIED AS SIDEFF
  ["Start" "Counting"] ->
    [ start_counting () ]
      END
 
-VERNAC COMMAND EXTEND StopCounting
+VERNAC COMMAND EXTEND StopCounting CLASSIFIED AS SIDEFF
  ["Stop" "Counting"] ->
    [ stop_counting () ]
 END
 
-VERNAC COMMAND EXTEND ResetCounting
+VERNAC COMMAND EXTEND ResetCounting CLASSIFIED AS SIDEFF
  ["Reset" "Count"] ->
    [ reset () ]
 END
 
-VERNAC COMMAND EXTEND DisplayCounting
+VERNAC COMMAND EXTEND DisplayCounting CLASSIFIED AS QUERY
  ["Print" "Count"] ->
    [ print_count () ]
 END
 
-VERNAC COMMAND EXTEND SizeOf
+VERNAC COMMAND EXTEND SizeOf CLASSIFIED AS QUERY
  ["Size" global(id)] ->
    [ size_of id ]
 END
