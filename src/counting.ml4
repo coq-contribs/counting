@@ -30,6 +30,7 @@ let rec constr_size c =
 	aconstr_size type_a + aconstr_size constr_a + Array.length name_a
     | CoFix (int, (name_a, type_a, constr_a)) ->
 	aconstr_size type_a + aconstr_size constr_a + Array.length name_a
+    | Proj (_, c) -> constr_size c
 
 (* References holding the state *)
 let total_proofs_size = ref 0
@@ -56,7 +57,7 @@ let extract_size pft =
 
 let entry_size {Entries.const_entry_body = body} =
   if !count then
-    let (c, _) = Future.force body in
+    let ((c, _), _) = Future.force body in
     total_defs_size := !total_defs_size + constr_size c
 
 (* Initialization : setting hooks up and registering the state
