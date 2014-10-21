@@ -83,8 +83,7 @@ let size_of cref =
   match Nametab.global cref with
     | Globnames.ConstRef sp ->
 	begin
-	  let cb = Global.lookup_constant sp in
-	  match Declareops.body_of_constant cb with
+	  match Global.body_of_constant sp with
 	    | None -> if_verbose msgnl (str "No body : cannot count.")
 	    | Some c ->
 		let n = constr_size c in
