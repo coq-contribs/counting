@@ -43,9 +43,9 @@ let start_counting () = count := true
 let stop_counting () = count := false
 let reset () = total_proofs_size := 0; total_defs_size := 0
 let print_count () =
-  if_verbose msgnl (str "Total size of definitions so far : " ++ int !total_defs_size);
-  if_verbose msgnl (str "Total size of proofs so far : " ++ int !total_proofs_size);
-  if_verbose msgnl (str "Counting is currently " ++ str (if !count then "on" else "off"))
+  if_verbose Feedback.msg_notice (str "Total size of definitions so far : " ++ int !total_defs_size);
+  if_verbose Feedback.msg_notice (str "Total size of proofs so far : " ++ int !total_proofs_size);
+  if_verbose Feedback.msg_notice (str "Counting is currently " ++ str (if !count then "on" else "off"))
 
 (* Hooks for recording stats *)
 let extract_size pft =
@@ -85,13 +85,13 @@ let size_of cref =
     | Globnames.ConstRef sp ->
 	begin
 	  match Global.body_of_constant sp with
-	    | None -> if_verbose msgnl (str "No body : cannot count.")
+	    | None -> if_verbose Feedback.msg_notice (str "No body : cannot count.")
 	    | Some c ->
 		let n = constr_size c in
-		if_verbose msgnl (str "Size of " ++
+		if_verbose Feedback.msg_notice (str "Size of " ++
 			 Libnames.pr_reference cref ++ str " : " ++ int n)
 	end
-    |  _ -> if_verbose msgnl (str "Only works for constants.")
+    |  _ -> if_verbose Feedback.msg_notice (str "Only works for constants.")
 
 (* Syntax extensions *)
 VERNAC COMMAND EXTEND StartCounting CLASSIFIED AS SIDEFF
