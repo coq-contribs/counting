@@ -4,7 +4,7 @@
 open Term
 open Pp
 open Flags
-open Constrarg
+open Stdarg
 
 (* Computes the size of a term *)
 let rec constr_size c =
