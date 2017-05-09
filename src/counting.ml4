@@ -53,7 +53,7 @@ let extract_size pft =
     try
       total_proofs_size := !total_proofs_size +
 	List.fold_left (fun acc t -> acc + constr_size t)
-	  0 (Proof.partial_proof pft)
+	  0 (List.map (EConstr.to_constr Evd.empty) (Proof.partial_proof pft))
     with _ -> ()
 
 let entry_size {Entries.const_entry_body = body} =
