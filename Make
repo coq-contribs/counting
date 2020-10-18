@@ -1,7 +1,7 @@
 -I src
 -R theories Counting
 
-src/counting.ml4
+src/counting.mlg
 src/counting_plugin_mod.ml
 src/counting_plugin.mllib
 

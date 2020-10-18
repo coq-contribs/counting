@@ -1,15 +1,20 @@
-(*i camlp4deps: "parsing/grammar.cma" i*)
-(*i camlp4use: "pa_extend.cmp" i*)
+{
 
-open Term
+open Constr
 open Pp
 open Flags
 open Stdarg
 
+}
+
+DECLARE PLUGIN "counting_plugin"
+
+{
+
 (* Computes the size of a term *)
 let rec constr_size c =
   let aconstr_size = Array.fold_left (fun n c -> n + constr_size c) 0 in
-  match kind_of_term c with
+  match kind c with
     | Rel i -> 1
     | Var id -> 1
     | Meta _ -> 1
@@ -32,6 +37,7 @@ let rec constr_size c =
     | CoFix (int, (name_a, type_a, constr_a)) ->
 	aconstr_size type_a + aconstr_size constr_a + Array.length name_a
     | Proj (_, c) -> constr_size c
+    | Int s -> 1
 
 (* References holding the state *)
 let total_proofs_size = ref 0
@@ -93,28 +99,25 @@ let size_of cref =
 	end
     |  _ -> if_verbose Feedback.msg_notice (str "Only works for constants.")
 
+}
+
 (* Syntax extensions *)
 VERNAC COMMAND EXTEND StartCounting CLASSIFIED AS SIDEFF
- ["Start" "Counting"] ->
-   [ start_counting () ]
-     END
+| ["Start" "Counting"] -> { start_counting () }
+END
 
 VERNAC COMMAND EXTEND StopCounting CLASSIFIED AS SIDEFF
- ["Stop" "Counting"] ->
-   [ stop_counting () ]
+| ["Stop" "Counting"] -> { stop_counting () }
 END
 
 VERNAC COMMAND EXTEND ResetCounting CLASSIFIED AS SIDEFF
- ["Reset" "Count"] ->
-   [ reset () ]
+| ["Reset" "Count"] -> { reset () }
 END
 
 VERNAC COMMAND EXTEND DisplayCounting CLASSIFIED AS QUERY
- ["Print" "Count"] ->
-   [ print_count () ]
+| ["Print" "Count"] -> { print_count () }
 END
 
 VERNAC COMMAND EXTEND SizeOf CLASSIFIED AS QUERY
- ["Size" global(id)] ->
-   [ size_of id ]
+| ["Size" global(id)] -> { size_of id }
 END
